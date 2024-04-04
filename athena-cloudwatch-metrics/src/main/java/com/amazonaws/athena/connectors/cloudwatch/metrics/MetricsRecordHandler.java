@@ -62,6 +62,7 @@ import java.util.concurrent.TimeoutException;
 import static com.amazonaws.athena.connector.lambda.data.FieldResolver.DEFAULT;
 import static com.amazonaws.athena.connectors.cloudwatch.metrics.MetricsExceptionFilter.EXCEPTION_FILTER;
 import static com.amazonaws.athena.connectors.cloudwatch.metrics.MetricsMetadataHandler.STATISTICS;
+import static com.amazonaws.athena.connectors.cloudwatch.metrics.tables.Table.ACCOUNT_ID_FIELD;
 import static com.amazonaws.athena.connectors.cloudwatch.metrics.tables.Table.DIMENSIONS_FIELD;
 import static com.amazonaws.athena.connectors.cloudwatch.metrics.tables.Table.DIMENSION_NAME_FIELD;
 import static com.amazonaws.athena.connectors.cloudwatch.metrics.tables.Table.DIMENSION_VALUE_FIELD;
@@ -163,6 +164,7 @@ public class MetricsRecordHandler
                     if (matches) {
                         matches &= block.offerValue(METRIC_NAME_FIELD, row, nextMetric.getMetricName());
                         matches &= block.offerValue(NAMESPACE_FIELD, row, nextMetric.getNamespace());
+                        matches &= block.offerValue(ACCOUNT_ID_FIELD, row, result.getOwningAccounts());
                         matches &= block.offerComplexValue(STATISTIC_FIELD, row, DEFAULT, STATISTICS);
 
                         matches &= block.offerComplexValue(DIMENSIONS_FIELD,
@@ -231,7 +233,7 @@ public class MetricsRecordHandler
                         block.offerValue(METRIC_NAME_FIELD, row, metricStat.getMetric().getMetricName());
                         block.offerValue(NAMESPACE_FIELD, row, metricStat.getMetric().getNamespace());
                         block.offerValue(STATISTIC_FIELD, row, metricStat.getStat());
-
+                        block.offerValue(ACCOUNT_ID_FIELD, row, metricStat.get)
                         block.offerComplexValue(DIMENSIONS_FIELD,
                                 row,
                                 (Field field, Object val) -> {

@@ -42,6 +42,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static com.amazonaws.athena.connectors.cloudwatch.metrics.tables.Table.ACCOUNT_ID_FIELD;
 import static com.amazonaws.athena.connectors.cloudwatch.metrics.tables.Table.DIMENSION_NAME_FIELD;
 import static com.amazonaws.athena.connectors.cloudwatch.metrics.tables.Table.DIMENSION_VALUE_FIELD;
 import static com.amazonaws.athena.connectors.cloudwatch.metrics.tables.Table.METRIC_NAME_FIELD;
@@ -140,11 +141,11 @@ public class MetricUtils
         com.amazonaws.services.cloudwatch.model.Metric metric = new com.amazonaws.services.cloudwatch.model.Metric();
         metric.setNamespace(split.getProperty(NAMESPACE_FIELD));
         metric.setMetricName(split.getProperty(METRIC_NAME_FIELD));
-        metrics.setOwningAccounts
         List<MetricDataQuery> metricDataQueries = new ArrayList<>();
         int metricId = 1;
+        String accountId = split.getProperty(ACCOUNT_ID_FIELD);
         for (MetricStat nextMetricStat : metricStats) {
-            metricDataQueries.add(new MetricDataQuery().withMetricStat(nextMetricStat).withId("m" + metricId++));
+            metricDataQueries.add(new MetricDataQuery().withAccountId(accountId).withMetricStat(nextMetricStat).withId("m" + metricId++));
         }
 
         dataRequest.withMetricDataQueries(metricDataQueries);

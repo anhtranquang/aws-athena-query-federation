@@ -233,7 +233,6 @@ public class MetricsRecordHandler
                         block.offerValue(METRIC_NAME_FIELD, row, metricStat.getMetric().getMetricName());
                         block.offerValue(NAMESPACE_FIELD, row, metricStat.getMetric().getNamespace());
                         block.offerValue(STATISTIC_FIELD, row, metricStat.getStat());
-                        block.offerValue(ACCOUNT_ID_FIELD, row, metricStat.get)
                         block.offerComplexValue(DIMENSIONS_FIELD,
                                 row,
                                 (Field field, Object val) -> {

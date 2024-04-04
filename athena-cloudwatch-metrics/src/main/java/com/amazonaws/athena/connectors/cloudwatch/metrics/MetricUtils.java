@@ -140,7 +140,7 @@ public class MetricUtils
         com.amazonaws.services.cloudwatch.model.Metric metric = new com.amazonaws.services.cloudwatch.model.Metric();
         metric.setNamespace(split.getProperty(NAMESPACE_FIELD));
         metric.setMetricName(split.getProperty(METRIC_NAME_FIELD));
-
+        metrics.setOwningAccounts
         List<MetricDataQuery> metricDataQueries = new ArrayList<>();
         int metricId = 1;
         for (MetricStat nextMetricStat : metricStats) {

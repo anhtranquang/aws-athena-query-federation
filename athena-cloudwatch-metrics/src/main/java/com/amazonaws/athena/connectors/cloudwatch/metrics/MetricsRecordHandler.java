@@ -147,6 +147,7 @@ public class MetricsRecordHandler
             throws TimeoutException
     {
         ListMetricsRequest listMetricsRequest = new ListMetricsRequest();
+        listMetricsRequest.setIncludeLinkedAccounts(true);
         MetricUtils.pushDownPredicate(request.getConstraints(), listMetricsRequest);
         String prevToken;
         Set<String> requiredFields = new HashSet<>();

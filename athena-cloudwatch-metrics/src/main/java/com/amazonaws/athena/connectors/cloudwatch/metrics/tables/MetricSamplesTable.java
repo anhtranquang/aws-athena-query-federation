@@ -66,6 +66,7 @@ public class MetricSamplesTable
                 .addBigIntField(TIMESTAMP_FIELD)
                 .addFloat8Field(VALUE_FIELD)
                 .addStringField(STATISTIC_FIELD)
+                .addStringField(ACCOUNT_ID_FIELD)
                 .addMetadata(NAMESPACE_FIELD, "Metric namespace")
                 .addMetadata(METRIC_NAME_FIELD, "Metric name")
                 .addMetadata(DIMENSIONS_FIELD, "Array of Dimensions for the given metric.")
@@ -75,6 +76,7 @@ public class MetricSamplesTable
                 .addMetadata(TIMESTAMP_FIELD, "The epoch time (in seconds) the value is for.")
                 .addMetadata(PERIOD_FIELD, "The period, in seconds, for the metric (e.g. 60 seconds, 120 seconds)")
                 .addMetadata(VALUE_FIELD, "The value for the sample.")
+                .addMetadata(ACCOUNT_ID_FIELD, "Metric account id")
                 .build();
 
         name = "metric_samples";

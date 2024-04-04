@@ -46,6 +46,8 @@ public abstract class Table
     public static final String STATISTIC_FIELD = "statistic";
     //The name of the period field (e.g. 60 seconds).
     public static final String PERIOD_FIELD = "period";
+    //The name of the account_id field (e.g. 60 seconds).
+    public static final String ACCOUNT_ID_FIELD = "account_id";
 
     public abstract String getName();
     public abstract Schema getSchema();

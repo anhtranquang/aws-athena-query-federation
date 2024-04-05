@@ -246,15 +246,17 @@ public class MetricsMetadataHandler
             List<MetricStat> metricStats = new ArrayList<>(100);
             for (Metric nextMetric : result.getMetrics()) {
                 for (String nextStatistic : STATISTICS) {
-                    if (MetricUtils.applyMetricConstraints(constraintEvaluator, nextMetric, nextStatistic)) {
-                        metricStats.add(new MetricStat()
-                                .withMetric(new Metric()
-                                        .withNamespace(nextMetric.getNamespace())
-                                        .withMetricName(nextMetric.getMetricName())
-                                        .withDimensions(nextMetric.getDimensions()))
-                                .withPeriod(Integer.valueOf(period))
-                                .withStat(nextStatistic));
-                    }
+                    for(String accountId : result.getOwningAccounts()){
+                        if (MetricUtils.applyMetricConstraints(constraintEvaluator, nextMetric, nextStatistic, accountId)) {
+                            metricStats.add(new MetricStat()
+                                    .withMetric(new Metric()
+                                            .withNamespace(nextMetric.getNamespace())
+                                            .withMetricName(nextMetric.getMetricName())
+                                            .withDimensions(nextMetric.getDimensions()))
+                                    .withPeriod(Integer.valueOf(period))
+                                    .withStat(nextStatistic));
+                        }
+                }
                 }
             }
 

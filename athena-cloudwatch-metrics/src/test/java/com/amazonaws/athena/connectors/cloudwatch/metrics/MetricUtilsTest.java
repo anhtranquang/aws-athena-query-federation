@@ -105,15 +105,17 @@ public class MetricUtilsTest
                 .withMetricName("match2")
                 .withDimensions(new Dimension().withName("match4").withValue("match5"));
         String statistic = "match3";
-        assertTrue(MetricUtils.applyMetricConstraints(constraintEvaluator, metric, statistic));
+        String accountId = "match6";
+        assertTrue(MetricUtils.applyMetricConstraints(constraintEvaluator, metric, statistic, accountId));
 
-        assertFalse(MetricUtils.applyMetricConstraints(constraintEvaluator, copyMetric(metric).withNamespace("no_match"), statistic));
-        assertFalse(MetricUtils.applyMetricConstraints(constraintEvaluator, copyMetric(metric).withMetricName("no_match"), statistic));
+        assertFalse(MetricUtils.applyMetricConstraints(constraintEvaluator, copyMetric(metric).withNamespace("no_match"), statistic, accountId));
+        assertFalse(MetricUtils.applyMetricConstraints(constraintEvaluator, copyMetric(metric).withMetricName("no_match"), statistic, accountId));
         assertFalse(MetricUtils.applyMetricConstraints(constraintEvaluator,
-                copyMetric(metric).withDimensions(Collections.singletonList(new Dimension().withName("no_match").withValue("match5"))), statistic));
+                copyMetric(metric).withDimensions(Collections.singletonList(new Dimension().withName("no_match").withValue("match5"))), statistic, accountId));
         assertFalse(MetricUtils.applyMetricConstraints(constraintEvaluator,
-                copyMetric(metric).withDimensions(Collections.singletonList(new Dimension().withName("match4").withValue("no_match"))), statistic));
-        assertFalse(MetricUtils.applyMetricConstraints(constraintEvaluator, copyMetric(metric), "no_match"));
+                copyMetric(metric).withDimensions(Collections.singletonList(new Dimension().withName("match4").withValue("no_match"))), statistic, accountId));
+        assertFalse(MetricUtils.applyMetricConstraints(constraintEvaluator, copyMetric(metric), "no_match", accountId));
+        assertFalse(MetricUtils.applyMetricConstraints(constraintEvaluator, copyMetric(metric), statistic, "no_match"));
     }
 
     private Metric copyMetric(Metric metric)

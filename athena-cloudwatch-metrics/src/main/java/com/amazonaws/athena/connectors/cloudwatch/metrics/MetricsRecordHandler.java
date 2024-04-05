@@ -160,7 +160,7 @@ public class MetricsRecordHandler
             ListMetricsResult result = invoker.invoke(() -> metrics.listMetrics(listMetricsRequest));
             for (Metric nextMetric : result.getMetrics()) {
                 blockSpiller.writeRows((Block block, int row) -> {
-                    boolean matches = MetricUtils.applyMetricConstraints(blockSpiller.getConstraintEvaluator(), nextMetric, null);
+                    boolean matches = MetricUtils.applyMetricConstraints(blockSpiller.getConstraintEvaluator(), nextMetric, null, null);
                     if (matches) {
                         matches &= block.offerValue(METRIC_NAME_FIELD, row, nextMetric.getMetricName());
                         matches &= block.offerValue(NAMESPACE_FIELD, row, nextMetric.getNamespace());

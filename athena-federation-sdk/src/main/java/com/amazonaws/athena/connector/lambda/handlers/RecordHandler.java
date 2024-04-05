@@ -186,7 +186,7 @@ public abstract class RecordHandler
     public RecordResponse doReadRecords(BlockAllocator allocator, ReadRecordsRequest request)
             throws Exception
     {
-        logger.info("doReadRecords: {}:{}", request.getSchema(), request.getSplit().getSpillLocation());
+        logger.warn("doReadRecords: {}:{}", request.getSchema(), request.getSplit().getSpillLocation());
         SpillConfig spillConfig = getSpillConfig(request);
         try (ConstraintEvaluator evaluator = new ConstraintEvaluator(allocator,
                 request.getSchema(),

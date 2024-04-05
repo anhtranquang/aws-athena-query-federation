@@ -69,7 +69,7 @@ public class MetricUtils
      *
      * @return True if the supplied metric contains at least 1 Dimension matching the evaluator.
      */
-    protected static boolean applyMetricConstraints(ConstraintEvaluator evaluator, Metric metric, String statistic)
+    protected static boolean applyMetricConstraints(ConstraintEvaluator evaluator, Metric metric, String statistic, String accountId)
     {
         if (!evaluator.apply(NAMESPACE_FIELD, metric.getNamespace())) {
             return false;
@@ -80,6 +80,10 @@ public class MetricUtils
         }
 
         if (statistic != null && !evaluator.apply(STATISTIC_FIELD, statistic)) {
+            return false;
+        }
+
+        if (accountId != null && !evaluator.apply(ACCOUNT_ID_FIELD, accountId)) {
             return false;
         }
 
@@ -143,9 +147,9 @@ public class MetricUtils
         metric.setMetricName(split.getProperty(METRIC_NAME_FIELD));
         List<MetricDataQuery> metricDataQueries = new ArrayList<>();
         int metricId = 1;
-        String accountId = split.getProperty(ACCOUNT_ID_FIELD);
+        // String accountId = readRecordsRequest.getConstraints..getSummary().get(DIMENSION_NAME_FIELD);(ACCOUNT_ID_FIELD);
         for (MetricStat nextMetricStat : metricStats) {
-            metricDataQueries.add(new MetricDataQuery().withAccountId(accountId).withMetricStat(nextMetricStat).withId("m" + metricId++));
+            metricDataQueries.add(new MetricDataQuery().withAccountId("1").withMetricStat(nextMetricStat).withId("m" + metricId++));
         }
 
         dataRequest.withMetricDataQueries(metricDataQueries);

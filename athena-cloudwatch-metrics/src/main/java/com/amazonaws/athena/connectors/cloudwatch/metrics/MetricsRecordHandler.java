@@ -149,6 +149,7 @@ public class MetricsRecordHandler
     {
         ListMetricsRequest listMetricsRequest = new ListMetricsRequest();
         listMetricsRequest.setIncludeLinkedAccounts(true);
+        System.out.println("Anhtq request.getConstraints().getSummary()" + request.getConstraints().getSummary());
         MetricUtils.pushDownPredicate(request.getConstraints(), listMetricsRequest);
         String prevToken;
         Set<String> requiredFields = new HashSet<>();
@@ -212,18 +213,23 @@ public class MetricsRecordHandler
         for (MetricDataQuery query : dataRequest.getMetricDataQueries()) {
             queries.put(query.getId(), query);
         }
-
+        // System.out.println("anhtq2: " + request.getConstraints().getSummary().get(ACCOUNT_ID_FIELD).getSingleValue().toString());
+        System.out.println("dataRequest: " + dataRequest);
         String prevToken;
         ValueSet dimensionNameConstraint = request.getConstraints().getSummary().get(DIMENSION_NAME_FIELD);
         ValueSet dimensionValueConstraint = request.getConstraints().getSummary().get(DIMENSION_VALUE_FIELD);
+        String accountId = request.getConstraints().getSummary().get(ACCOUNT_ID_FIELD).getSingleValue().toString();
         do {
             prevToken = dataRequest.getNextToken();
             GetMetricDataResult result = invoker.invoke(() -> metrics.getMetricData(dataRequest));
+            // System.out.println(" result.getMetricDataResults() " + result.getMetricDataResults());
             for (MetricDataResult nextMetric : result.getMetricDataResults()) {
+                System.out.println("nextMetric: " + nextMetric);   
                 MetricStat metricStat = queries.get(nextMetric.getId()).getMetricStat();
                 List<Date> timestamps = nextMetric.getTimestamps();
                 List<Double> values = nextMetric.getValues();
                 for (int i = 0; i < nextMetric.getValues().size(); i++) {
+                    System.out.println("Writing row: " + i);
                     int sampleNum = i;
                     blockSpiller.writeRows((Block block, int row) -> {
                         /**
@@ -265,7 +271,7 @@ public class MetricsRecordHandler
                         block.offerValue(VALUE_FIELD, row, values.get(sampleNum));
                         long timestamp = timestamps.get(sampleNum).getTime() / 1000;
                         block.offerValue(TIMESTAMP_FIELD, row, timestamp);
-
+                        block.offerValue(ACCOUNT_ID_FIELD, row, accountId);
                         return matches ? 1 : 0;
                     });
                 }

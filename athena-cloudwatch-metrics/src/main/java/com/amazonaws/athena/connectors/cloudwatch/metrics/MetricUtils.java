@@ -108,7 +108,7 @@ public class MetricUtils
     protected static void pushDownPredicate(Constraints constraints, ListMetricsRequest listMetricsRequest)
     {
         Map<String, ValueSet> summary = constraints.getSummary();
-
+        System.out.println("Summary" + summary);
         ValueSet namespaceConstraint = summary.get(NAMESPACE_FIELD);
         if (namespaceConstraint != null && namespaceConstraint.isSingleValue()) {
             listMetricsRequest.setNamespace(namespaceConstraint.getSingleValue().toString());
@@ -139,6 +139,7 @@ public class MetricUtils
     protected static GetMetricDataRequest makeGetMetricDataRequest(ReadRecordsRequest readRecordsRequest)
     {
         Split split = readRecordsRequest.getSplit();
+        String accountId = readRecordsRequest.getConstraints().getSummary().get(ACCOUNT_ID_FIELD).getSingleValue().toString();
         String serializedMetricStats = split.getProperty(MetricStatSerDe.SERIALIZED_METRIC_STATS_FIELD_NAME);
         List<MetricStat> metricStats = MetricStatSerDe.deserialize(serializedMetricStats);
         GetMetricDataRequest dataRequest = new GetMetricDataRequest();
@@ -148,8 +149,10 @@ public class MetricUtils
         List<MetricDataQuery> metricDataQueries = new ArrayList<>();
         int metricId = 1;
         // String accountId = readRecordsRequest.getConstraints..getSummary().get(DIMENSION_NAME_FIELD);(ACCOUNT_ID_FIELD);
+        logger.warn("Split: " + split);
+        System.out.println("split" + split);
         for (MetricStat nextMetricStat : metricStats) {
-            metricDataQueries.add(new MetricDataQuery().withAccountId("1").withMetricStat(nextMetricStat).withId("m" + metricId++));
+            metricDataQueries.add(new MetricDataQuery().withAccountId(accountId).withMetricStat(nextMetricStat).withId("m" + metricId++));
         }
 
         dataRequest.withMetricDataQueries(metricDataQueries);

@@ -63,8 +63,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+// import java.util.stream.Collectors;
 
 import static com.amazonaws.athena.connectors.cloudwatch.metrics.MetricsExceptionFilter.EXCEPTION_FILTER;
+import static com.amazonaws.athena.connectors.cloudwatch.metrics.tables.Table.ACCOUNT_ID_FIELD;
 import static com.amazonaws.athena.connectors.cloudwatch.metrics.tables.Table.PERIOD_FIELD;
 
 /**
@@ -238,27 +240,36 @@ public class MetricsMetadataHandler
             ListMetricsRequest listMetricsRequest = new ListMetricsRequest();
             MetricUtils.pushDownPredicate(getSplitsRequest.getConstraints(), listMetricsRequest);
             listMetricsRequest.setNextToken(getSplitsRequest.getContinuationToken());
-
+            listMetricsRequest.setIncludeLinkedAccounts(true);
             String period = getPeriodFromConstraint(getSplitsRequest.getConstraints());
+            String accountId = getAccountIdFromConstraint(getSplitsRequest.getConstraints());
             Set<Split> splits = new HashSet<>();
             ListMetricsResult result = invoker.invoke(() -> metrics.listMetrics(listMetricsRequest));
-
+            System.out.println("accountId" + accountId);
+            System.out.println("result" + result);
+            System.out.println("getSplitsRequest" + getSplitsRequest.getConstraints());
+            System.out.println("result.getOwningAccounts().size() " + result.getOwningAccounts().size());
+            List<String> lsOwningAccounts = result.getOwningAccounts();
+            System.out.println("lsOwningAccounts" + lsOwningAccounts);
+            System.out.println("result.getMetrics().size() " + result.getMetrics().size());
             List<MetricStat> metricStats = new ArrayList<>(100);
-            for (Metric nextMetric : result.getMetrics()) {
+            List<Metric> lsMetric = result.getMetrics();
+            for (int i = 0; i < lsMetric.size(); i++) {
+                Metric nextMetric = lsMetric.get(i);
+                String account = lsOwningAccounts.get(i);
                 for (String nextStatistic : STATISTICS) {
-                    for(String accountId : result.getOwningAccounts()){
-                        if (MetricUtils.applyMetricConstraints(constraintEvaluator, nextMetric, nextStatistic, accountId)) {
-                            metricStats.add(new MetricStat()
-                                    .withMetric(new Metric()
-                                            .withNamespace(nextMetric.getNamespace())
-                                            .withMetricName(nextMetric.getMetricName())
-                                            .withDimensions(nextMetric.getDimensions()))
-                                    .withPeriod(Integer.valueOf(period))
-                                    .withStat(nextStatistic));
-                        }
-                }
+                    if (MetricUtils.applyMetricConstraints(constraintEvaluator, nextMetric, nextStatistic, account)) {
+                        metricStats.add(new MetricStat()
+                                .withMetric(new Metric()
+                                        .withNamespace(nextMetric.getNamespace())
+                                        .withMetricName(nextMetric.getMetricName())
+                                        .withDimensions(nextMetric.getDimensions()))
+                                .withPeriod(Integer.valueOf(period))
+                                .withStat(nextStatistic));
                 }
             }
+        }
+            System.out.println("metricStats" + metricStats);   
 
             if (CollectionUtils.isNullOrEmpty(metricStats)) {
                 logger.info("No metric stats present after filtering predicates.");
@@ -294,6 +305,19 @@ public class MetricsMetadataHandler
         }
 
         return String.valueOf(DEFAULT_PERIOD_SEC);
+    }
+
+    /**
+     * Resolved the metric period to query, using a default if no period constraint is found.
+     */
+    private String getAccountIdFromConstraint(Constraints constraints)
+    {
+        ValueSet accountId = constraints.getSummary().get(ACCOUNT_ID_FIELD);
+        if (accountId != null && accountId.isSingleValue()) {
+            return String.valueOf(accountId.getSingleValue());
+        }
+
+        return "";
     }
 
     /**

@@ -1,0 +1,10 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "anhtq"
+resolve_s3 = true
+s3_prefix = "anhtq"
+region = "ap-southeast-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "AthenaCatalogName=\"anhtq-cw\" SpillBucket=\"prod-monitoring-athena-cw-902351322324-ap-southeast-1\" SpillPrefix=\"athena-spill\" LambdaTimeout=\"900\" LambdaMemory=\"3008\" DisableSpillEncryption=\"false\" PermissionsBoundaryARN=\"\""
+image_repositories = []

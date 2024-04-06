@@ -149,7 +149,6 @@ public class MetricsRecordHandler
     {
         ListMetricsRequest listMetricsRequest = new ListMetricsRequest();
         listMetricsRequest.setIncludeLinkedAccounts(true);
-        System.out.println("Anhtq request.getConstraints().getSummary()" + request.getConstraints().getSummary());
         MetricUtils.pushDownPredicate(request.getConstraints(), listMetricsRequest);
         String prevToken;
         Set<String> requiredFields = new HashSet<>();
@@ -159,13 +158,17 @@ public class MetricsRecordHandler
         do {
             prevToken = listMetricsRequest.getNextToken();
             ListMetricsResult result = invoker.invoke(() -> metrics.listMetrics(listMetricsRequest));
-            for (Metric nextMetric : result.getMetrics()) {
+            List<Metric> lsMetric = result.getMetrics();
+            List<String> lsOwningAccounts = result.getOwningAccounts();
+            for (int i = 0; i < lsMetric.size(); i++) {
+                Metric nextMetric = lsMetric.get(i);
+                String account = lsOwningAccounts.get(i);
                 blockSpiller.writeRows((Block block, int row) -> {
                     boolean matches = MetricUtils.applyMetricConstraints(blockSpiller.getConstraintEvaluator(), nextMetric, null, null);
                     if (matches) {
                         matches &= block.offerValue(METRIC_NAME_FIELD, row, nextMetric.getMetricName());
                         matches &= block.offerValue(NAMESPACE_FIELD, row, nextMetric.getNamespace());
-                        matches &= block.offerValue(ACCOUNT_ID_FIELD, row, result.getOwningAccounts());
+                        matches &= block.offerValue(ACCOUNT_ID_FIELD, row, account);
                         matches &= block.offerComplexValue(STATISTIC_FIELD, row, DEFAULT, STATISTICS);
 
                         matches &= block.offerComplexValue(DIMENSIONS_FIELD,
@@ -229,7 +232,6 @@ public class MetricsRecordHandler
                 List<Date> timestamps = nextMetric.getTimestamps();
                 List<Double> values = nextMetric.getValues();
                 for (int i = 0; i < nextMetric.getValues().size(); i++) {
-                    System.out.println("Writing row: " + i);
                     int sampleNum = i;
                     blockSpiller.writeRows((Block block, int row) -> {
                         /**

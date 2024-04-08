@@ -289,7 +289,7 @@ public class MetricsMetadataHandler
                     !result.getNextToken().equalsIgnoreCase(listMetricsRequest.getNextToken())) {
                 continuationToken = result.getNextToken();
             }
-
+            System.out.println("continuationToken " + continuationToken);
             return new GetSplitsResponse(getSplitsRequest.getCatalogName(), splits, continuationToken);
         }
     }

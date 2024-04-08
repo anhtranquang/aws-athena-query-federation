@@ -270,26 +270,28 @@ public class MetricsMetadataHandler
             }
         }
             System.out.println("metricStats" + metricStats);   
-
-            if (CollectionUtils.isNullOrEmpty(metricStats)) {
-                logger.info("No metric stats present after filtering predicates.");
-                return new GetSplitsResponse(getSplitsRequest.getCatalogName(), splits, null);
-            }
-
-            List<List<MetricStat>> partitions = Lists.partition(metricStats, calculateSplitSize(metricStats.size()));
-            for (List<MetricStat> partition : partitions) {
-                String serializedMetricStats = MetricStatSerDe.serialize(partition);
-                splits.add(Split.newBuilder(makeSpillLocation(getSplitsRequest), makeEncryptionKey())
-                        .add(MetricStatSerDe.SERIALIZED_METRIC_STATS_FIELD_NAME, serializedMetricStats)
-                        .build());
-            }
-
             String continuationToken = null;
             if (result.getNextToken() != null &&
                     !result.getNextToken().equalsIgnoreCase(listMetricsRequest.getNextToken())) {
                 continuationToken = result.getNextToken();
+                if (metricStats.size() > 0) {
+                List<List<MetricStat>> partitions = Lists.partition(metricStats, calculateSplitSize(metricStats.size()));
+                for (List<MetricStat> partition : partitions) {
+                    String serializedMetricStats = MetricStatSerDe.serialize(partition);
+                    splits.add(Split.newBuilder(makeSpillLocation(getSplitsRequest), makeEncryptionKey())
+                            .add(MetricStatSerDe.SERIALIZED_METRIC_STATS_FIELD_NAME, serializedMetricStats)
+                            .build());
+                    }
+                }
+    
+                return new GetSplitsResponse(getSplitsRequest.getCatalogName(), splits, continuationToken);
             }
-            System.out.println("continuationToken " + continuationToken);
+
+            if (CollectionUtils.isNullOrEmpty(metricStats) && continuationToken == null) {
+                logger.info("No metric stats present after filtering predicates.");
+                return new GetSplitsResponse(getSplitsRequest.getCatalogName(), splits, null);
+            }
+            // System.out.println("continuationToken " + continuationToken);
             return new GetSplitsResponse(getSplitsRequest.getCatalogName(), splits, continuationToken);
         }
     }

@@ -216,7 +216,6 @@ public class MetricsRecordHandler
         for (MetricDataQuery query : dataRequest.getMetricDataQueries()) {
             queries.put(query.getId(), query);
         }
-        // System.out.println("anhtq2: " + request.getConstraints().getSummary().get(ACCOUNT_ID_FIELD).getSingleValue().toString());
         System.out.println("dataRequest: " + dataRequest);
         String prevToken;
         ValueSet dimensionNameConstraint = request.getConstraints().getSummary().get(DIMENSION_NAME_FIELD);
@@ -225,7 +224,6 @@ public class MetricsRecordHandler
         do {
             prevToken = dataRequest.getNextToken();
             GetMetricDataResult result = invoker.invoke(() -> metrics.getMetricData(dataRequest));
-            // System.out.println(" result.getMetricDataResults() " + result.getMetricDataResults());
             for (MetricDataResult nextMetric : result.getMetricDataResults()) {
                 System.out.println("nextMetric: " + nextMetric);   
                 MetricStat metricStat = queries.get(nextMetric.getId()).getMetricStat();

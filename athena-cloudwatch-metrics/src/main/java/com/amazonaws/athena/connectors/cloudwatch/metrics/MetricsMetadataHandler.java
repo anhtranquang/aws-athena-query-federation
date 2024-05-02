@@ -319,7 +319,7 @@ public class MetricsMetadataHandler
             return String.valueOf(accountId.getSingleValue());
         }
 
-        return "";
+        return null;
     }
 
     /**
